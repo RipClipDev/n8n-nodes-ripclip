@@ -1,0 +1,7 @@
+# The main RipClip repo ignores *.ts (video streams) and *credentials*; here they are the node's source.
+!*.ts
+!*credentials*
+node_modules
+dist
+.build
+*.tsbuildinfo

@@ -1,0 +1,46 @@
+# Publishes n8n-nodes-ripclip to npm on every version tag push, with an npm provenance statement.
+# n8n requires this for verified community nodes (since May 1 2026): the package must be published by GitHub Actions
+# from a PUBLIC repository, never from a local machine. From n8n-io/n8n-nodes-starter.
+#
+# One-time setup:
+#   npmjs.com > the package > Settings > Publish access > Trusted Publishers > Add a publisher > GitHub Actions:
+#   Repository owner RipClipDev, Repository name n8n-nodes-ripclip, Workflow name publish.yml.
+#   No NPM_TOKEN secret is needed then. (Fallback: a Granular Access Token stored as the NPM_TOKEN Actions secret.)
+#
+# Release: `npm run release` locally (lint, build, version bump, changelog, commit, tag, push); the tag starts this.
+
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Required to mint an OIDC token for npm provenance attestation.
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Release
+        run: |
+          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          npm run release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

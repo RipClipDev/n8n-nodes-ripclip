@@ -1,0 +1,19 @@
+{
+	"node": "n8n-nodes-ripclip.ripClip",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing & Content", "Productivity"],
+	"alias": ["clip", "clipper", "shorts", "reels", "tiktok", "video", "stream", "captions"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/RipClipDev/n8n-nodes-ripclip#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/RipClipDev/n8n-nodes-ripclip#readme"
+			}
+		]
+	}
+}

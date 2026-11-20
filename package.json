@@ -1,0 +1,58 @@
+{
+	"name": "n8n-nodes-ripclip",
+	"version": "0.1.0",
+	"description": "n8n community node for RipClip: import videos, find clips, get download links and draft posts",
+	"license": "MIT",
+	"homepage": "https://ripclip.org",
+	"keywords": [
+		"n8n-community-node-package",
+		"ripclip",
+		"video",
+		"clips",
+		"shorts",
+		"social media"
+	],
+	"author": {
+		"name": "RipClip",
+		"email": "support@ripclip.org"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/RipClipDev/n8n-nodes-ripclip.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"test": "node --test test/api.test.mjs",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist",
+		"!dist/**/*.tsbuildinfo"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/RipClipApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/RipClip/RipClip.node.js",
+			"dist/nodes/RipClip/RipClipTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "9.39.4",
+		"prettier": "3.8.3",
+		"release-it": "20.2.0",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
