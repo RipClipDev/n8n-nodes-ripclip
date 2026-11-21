@@ -107,5 +107,6 @@ The code is MIT licensed. The RipClip name and logo are trademarks of RipClip an
 
 ## Version history
 
+- **0.1.1**: the same code as 0.1.0, published from GitHub Actions with npm provenance.
 - **0.1.0**: first release. RipClip Trigger (New Clip, Job Finished) and RipClip (Import, Find, Get Download
   Link, Create Draft, Get Job).

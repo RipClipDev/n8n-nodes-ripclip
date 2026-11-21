@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-ripclip",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "n8n community node for RipClip: import videos, find clips, get download links and draft posts",
 	"license": "MIT",
 	"homepage": "https://ripclip.org",
@@ -18,7 +18,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/RipClipDev/n8n-nodes-ripclip.git"
+		"url": "git+https://github.com/RipClipDev/n8n-nodes-ripclip.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
