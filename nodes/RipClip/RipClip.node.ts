@@ -198,9 +198,9 @@ export class RipClip implements INodeType {
 				default: '',
 				description: "Leave empty to keep the first clip's shape",
 				options: [
-					{ name: 'Same as First Clip', value: '' },
 					{ name: 'Landscape 16:9', value: '16:9' },
 					{ name: 'Portrait 4:5', value: '4:5' },
+					{ name: 'Same as First Clip', value: '' },
 					{ name: 'Square 1:1', value: '1:1' },
 					{ name: 'Vertical 9:16', value: '9:16' },
 				],
