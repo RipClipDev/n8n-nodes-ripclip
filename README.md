@@ -43,13 +43,21 @@ run in the editor shows the newest clip or job as a sample.
 | --- | --- | --- |
 | Video | **Import** | Imports a video from a link into your account. Returns a `job_id`; importing costs no Horizon Units. |
 | Clip | **Find** | Finds the best moments in an imported video and turns them into captioned vertical clips. Returns a `job_id`. |
+| Clip | **Combine** | Joins 2 to 20 of your clips, in the order given, into one new clip in your Library. Returns a `job_id`; costs no Horizon Units. |
 | Clip | **Get Download Link** | Returns a clip with a fresh download link (5 minutes). |
 | Post | **Create Draft** | Saves a post for a clip as a draft. Nothing is scheduled or published until you do it in RipClip. |
 | Job | **Get** | Returns a job's status and, once it is done, its clips (or the video an import made). |
 
 **Import** takes a Kick or Twitch link, an Apple Podcasts episode, a Google Drive, Dropbox or OneDrive share link, or a
 direct link to a video file. Turn on **I Have the Rights to This Video**: RipClip only imports a video you own or have
-permission to use.
+permission to use. To import and clip in one step, set **Also Find Clips: Max HU** (the most HU to spend, about 1 HU a
+minute of video; 0 imports only) and the number of clips. When the import is done, **Get Job** on its `job_id` starts
+the clips and returns the clip job as `next_job_id`; get that job for the clips. This needs a key with the generate
+permission.
+
+**Combine** takes the clip IDs (separated by commas or new lines, in play order), an optional shape and an optional
+title. Poll **Get Job** until it is done; the new clip is then the newest one in your account (the RipClip Trigger's
+New Clip fires for it).
 
 **Find** spends Horizon Units (HU), RipClip's processing credits. **Max HU** is the most one run may spend:
 RipClip quotes the video first, and the node stops with the quoted number if it is above your limit. Options: number of
@@ -107,6 +115,8 @@ The code is MIT licensed. The RipClip name and logo are trademarks of RipClip an
 
 ## Version history
 
+- **0.2.0**: Import can also clip the video (Also Find Clips: Max HU; Get Job shows `next_job_id`), and a new Clip
+  operation, Combine, joins clips into one video.
 - **0.1.1**: the same code as 0.1.0, published from GitHub Actions with npm provenance.
 - **0.1.0**: first release. RipClip Trigger (New Clip, Job Finished) and RipClip (Import, Find, Get Download
   Link, Create Draft, Get Job).

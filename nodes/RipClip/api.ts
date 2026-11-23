@@ -72,7 +72,19 @@ function job(row: Json): Json {
 	return { ...row, created_at: iso(row.created_at), finished_at: iso(row.finished_at) };
 }
 
-export async function importVideo(send: Send, url: string, rights: boolean): Promise<Json> {
+export interface ClipAfterImport {
+	maxHu: number;
+	count?: number;
+}
+
+// With `clip`, RipClip also clips the video once it is imported (at most maxHu): Get Job on the import then shows
+// next_job_id, the clip job.
+export async function importVideo(
+	send: Send,
+	url: string,
+	rights: boolean,
+	clip?: ClipAfterImport,
+): Promise<Json> {
 	if (!rights) {
 		throw new RipClipError(
 			400,
@@ -80,7 +92,30 @@ export async function importVideo(send: Send, url: string, rights: boolean): Pro
 			'Confirm you own the video or have permission to use it.',
 		);
 	}
-	return await call(send, { method: 'POST', path: '/imports', body: { url, rights: true } });
+	const body: Json = { url, rights: true };
+	if (clip && clip.maxHu > 0) {
+		body.clip_max_hu = clip.maxHu;
+		if (clip.count !== undefined) body.clip_count = clip.count;
+	}
+	return await call(send, { method: 'POST', path: '/imports', body });
+}
+
+// Joins 2 to 20 clips (ids as a list, or one comma or line separated string) into one new clip, in that order.
+export async function combineClips(
+	send: Send,
+	clipIds: string | string[],
+	shape = '',
+	title = '',
+): Promise<Json> {
+	const ids = (Array.isArray(clipIds) ? clipIds : clipIds.split(/[\s,]+/)).map((id) => id.trim());
+	const clean = ids.filter(Boolean);
+	if (clean.length < 2 || clean.length > 20) {
+		throw new RipClipError(400, 'invalid_argument', 'Give 2 to 20 clip IDs to join.');
+	}
+	const body: Json = { clip_ids: clean };
+	if (shape) body.shape = shape;
+	if (title) body.title = title;
+	return await call(send, { method: 'POST', path: '/combinations', body });
 }
 
 export interface FindClipsInput {

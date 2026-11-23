@@ -6,6 +6,7 @@ import { test } from 'node:test';
 
 import {
 	RipClipError,
+	combineClips,
 	draftPost,
 	findClips,
 	fresh,
@@ -47,6 +48,29 @@ async function finished(jobId) {
 
 const refused = (code, status) => (error) =>
 	error instanceof RipClipError && error.code === code && error.status === status;
+
+test('Import with Max HU sends the clip fields, Combine sends 2 to 20 ids in order (no server needed)', async () => {
+	const sent = [];
+	const fake = async (request) => (sent.push(request), { status: 202, body: { job_id: 'j1' } });
+	await importVideo(fake, 'https://media.example.com/a.mp4', true);
+	await importVideo(fake, 'https://media.example.com/a.mp4', true, { maxHu: 0, count: 3 });
+	await importVideo(fake, 'https://media.example.com/a.mp4', true, { maxHu: 12, count: 3 });
+	assert.deepEqual(sent.map((r) => r.body), [
+		{ url: 'https://media.example.com/a.mp4', rights: true },
+		{ url: 'https://media.example.com/a.mp4', rights: true },
+		{ url: 'https://media.example.com/a.mp4', rights: true, clip_max_hu: 12, clip_count: 3 },
+	]);
+	sent.length = 0;
+	await combineClips(fake, 'a1, b2\nc3', '16:9', 'Week');
+	await combineClips(fake, ['x', 'y']);
+	assert.equal(sent[0].path, '/combinations');
+	assert.deepEqual(sent[0].body, { clip_ids: ['a1', 'b2', 'c3'], shape: '16:9', title: 'Week' });
+	assert.deepEqual(sent[1].body, { clip_ids: ['x', 'y'] });
+	for (const bad of ['a1', '', Array.from({ length: 21 }, (_, i) => `c${i}`)]) {
+		await assert.rejects(combineClips(fake, bad), refused('invalid_argument', 400));
+	}
+	assert.equal(sent.length, 2);
+});
 
 test('trigger memory: the first poll remembers, later polls emit only new rows, oldest first', () => {
 	const rows = (...ids) => ids.map((id) => ({ id }));

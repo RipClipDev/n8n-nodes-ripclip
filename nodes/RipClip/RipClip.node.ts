@@ -10,6 +10,7 @@ import type {
 import { NodeConnectionTypes } from 'n8n-workflow';
 
 import {
+	combineClips,
 	draftPost,
 	findClips,
 	getClip,
@@ -81,6 +82,12 @@ export class RipClip implements INodeType {
 				displayOptions: { show: { resource: ['clip'] } },
 				options: [
 					{
+						name: 'Combine',
+						value: 'combine',
+						description: 'Join 2 to 20 of your clips into one new clip',
+						action: 'Join clips into one video',
+					},
+					{
 						name: 'Find',
 						value: 'find',
 						description:
@@ -149,6 +156,63 @@ export class RipClip implements INodeType {
 				default: false,
 				description: 'Whether you own this video or have permission to use it. RipClip only imports with this on.',
 				displayOptions: { show: { resource: ['video'], operation: ['import'] } },
+			},
+			{
+				displayName: 'Also Find Clips: Max HU',
+				name: 'clipMaxHu',
+				type: 'number',
+				typeOptions: { minValue: 0, numberPrecision: 2 },
+				default: 0,
+				description:
+					'The most Horizon Units to spend clipping the video as soon as it is imported (about 1 HU a minute). 0 imports only. Needs a key with the generate permission. Get Job on the import then shows next_job_id, the clip job.',
+				displayOptions: { show: { resource: ['video'], operation: ['import'] } },
+			},
+			{
+				displayName: 'Also Find Clips: Number of Clips',
+				name: 'clipCount',
+				type: 'number',
+				typeOptions: { minValue: 1, maxValue: 10 },
+				default: 5,
+				displayOptions: {
+					show: { resource: ['video'], operation: ['import'] },
+					hide: { clipMaxHu: [0] },
+				},
+			},
+
+			// Clip: Combine
+			{
+				displayName: 'Clip IDs',
+				name: 'clipIds',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'clip1, clip2, clip3',
+				description:
+					'2 to 20 clip IDs, separated by commas or new lines. They play in this order. Use the clip_id of earlier RipClip steps.',
+				displayOptions: { show: { resource: ['clip'], operation: ['combine'] } },
+			},
+			{
+				displayName: 'Shape',
+				name: 'shape',
+				type: 'options',
+				default: '',
+				description: "Leave empty to keep the first clip's shape",
+				options: [
+					{ name: 'Same as First Clip', value: '' },
+					{ name: 'Landscape 16:9', value: '16:9' },
+					{ name: 'Portrait 4:5', value: '4:5' },
+					{ name: 'Square 1:1', value: '1:1' },
+					{ name: 'Vertical 9:16', value: '9:16' },
+				],
+				displayOptions: { show: { resource: ['clip'], operation: ['combine'] } },
+			},
+			{
+				displayName: 'Title',
+				name: 'title',
+				type: 'string',
+				default: '',
+				description: "The new clip's name in your Library. Empty gives it a default name.",
+				displayOptions: { show: { resource: ['clip'], operation: ['combine'] } },
 			},
 
 			// Clip: Find Clips
@@ -336,6 +400,17 @@ export class RipClip implements INodeType {
 						send,
 						this.getNodeParameter('url', i) as string,
 						this.getNodeParameter('rights', i) as boolean,
+						{
+							maxHu: this.getNodeParameter('clipMaxHu', i, 0) as number,
+							count: this.getNodeParameter('clipCount', i, 5) as number,
+						},
+					);
+				} else if (resource === 'clip' && operation === 'combine') {
+					result = await combineClips(
+						send,
+						this.getNodeParameter('clipIds', i) as string,
+						this.getNodeParameter('shape', i, '') as string,
+						this.getNodeParameter('title', i, '') as string,
 					);
 				} else if (resource === 'clip' && operation === 'find') {
 					const options = this.getNodeParameter('options', i, {}) as IDataObject;
